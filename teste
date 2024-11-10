@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        /* Estilos básicos */
+        #chatbox { width: 400px; height: 300px; border: 1px solid #ccc; padding: 10px; overflow-y: scroll; }
+        #inputBox { width: 300px; }
+    </style>
+</head>
+<body>
+    <div id="chatbox"></div>
+    <input type="text" id="inputBox" placeholder="Digite uma mensagem...">
+    <button id="sendButton">Enviar</button>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const inputBox = document.getElementById('inputBox');
+        const sendButton = document.getElementById('sendButton');
+
+        // Função para enviar a mensagem para o servidor KoboldAI e obter a resposta
+        async function sendMessage(message) {
+            // Exibe a mensagem do usuário
+            chatbox.innerHTML += `<p><strong>Você:</strong> ${message}</p>`;
+
+            // Envia a mensagem para o servidor do KoboldAI (supondo que esteja no localhost)
+            const response = await fetch('http://localhost:5000/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            const botMessage = data.reply; // Ajuste conforme a estrutura da resposta do KoboldAI
+
+            // Exibe a resposta do bot
+            chatbox.innerHTML += `<p><strong>Bot:</strong> ${botMessage}</p>`;
+
+            // Rola o chatbox para o final para mostrar a nova mensagem
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Enviar mensagem quando o botão for clicado
+        sendButton.addEventListener('click', () => {
+            const userMessage = inputBox.value;
+            if (userMessage) {
+                sendMessage(userMessage);
+                inputBox.value = ''; // Limpa o campo de entrada
+            }
+        });
+
+        // Enviar mensagem quando o "Enter" for pressionado
+        inputBox.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
